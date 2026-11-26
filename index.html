@@ -1,86 +1,191 @@
 <!doctype html>
-<html lang="id">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#171717"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
-<title>Nihongo Master</title>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1f1f1f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><title>Nihongo Master</title>
 <style>
-:root{color-scheme:dark;--bg:#111214;--panel:#1c1e22;--ink:#f3f4f6;--muted:#a1a1aa;--line:#34363c;--accent:#e5e7eb;--green:#166534;--red:#991b1b;--soft:#25282e;--header:#090a0c}
-:root[data-theme="light"]{color-scheme:light;--bg:#f5f5f5;--panel:#fff;--ink:#171717;--muted:#737373;--line:#e5e5e5;--accent:#262626;--green:#15803d;--red:#b91c1c;--soft:#f5f5f5;--header:#171717}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
-header{position:sticky;top:0;background:var(--header);color:white;padding:16px 18px;z-index:5}header h1{font-size:20px;margin:0}header small{color:#c7c7c7}
-main{max-width:760px;margin:auto;padding:16px}.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--panel);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:10}.tabs button{flex:1;border:0;background:none;color:#666;padding:8px 2px;font-size:12px}.tabs button.active{color:#111;font-weight:700}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.muted{color:var(--muted)}.small{font-size:13px}.big{font-size:27px;font-weight:700}.btn{touch-action:manipulation;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:11px 14px;font-weight:600}.btn.primary{background:#171717;color:white;border-color:#171717}.btn:disabled{opacity:.4}.btn.green{background:#15803d;color:white;border-color:#15803d}.btn.red{background:#b91c1c;color:white;border-color:#b91c1c}
-input,textarea,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--soft);color:var(--ink);margin:5px 0 12px}label{font-size:13px;font-weight:600}textarea{min-height:75px}.hidden{display:none!important}.cardface{touch-action:manipulation;min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:26px;white-space:pre-wrap;overflow-wrap:anywhere;padding:24px}.answer{border-top:1px solid var(--line);padding-top:18px;margin-top:8px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:var(--soft);border-radius:12px;padding:13px}.stat b{display:block;font-size:23px}.deck{padding:14px 0;border-bottom:1px solid var(--line)}.deck:last-child{border:0}progress{width:100%;height:8px}video{width:100%;border-radius:12px;margin-top:10px} .notice{background:#fefce8;border:1px solid #fde68a;padding:12px;border-radius:12px;font-size:13px}
-</style></head>
-<body>
-<header><div class="row between"><div><h1>Nihongo Master</h1><small>Flashcard Jepang · belajar sedikit setiap hari</small></div><button class="btn" id="themeBtn" onclick="toggleTheme()" style="background:#292b30;color:white;border-color:#454850">☀️ Light</button></div></header>
-<main>
-<section id="home">
- <div class="panel"><div class="row between"><div><div class="muted small">Kartu perlu dipelajari</div><div class="big" id="dueCount">0</div></div><button class="btn primary" onclick="startStudy()">Mulai belajar</button></div></div>
- <div class="grid"><div class="stat"><span class="muted small">Total kartu</span><b id="totalCount">0</b></div><div class="stat"><span class="muted small">Dipelajari hari ini</span><b id="todayCount">0</b></div></div>
- <div class="panel"><h3>Deck saya</h3><div id="deckList"></div></div>
-</section>
-<section id="study" class="hidden">
- <div class="row between"><button class="btn" onclick="showTab('home')">← Kembali</button><span class="muted small" id="studyProgress"></span></div>
- <div class="panel"><div class="muted small" id="studyDeck"></div><div class="cardface" id="front" role="button" aria-label="Ketuk kartu untuk melihat jawaban" onclick="reveal()"></div><div id="backArea" class="hidden"><div class="answer" id="back"></div></div></div>
- <div class="row" id="showAnswerRow"><button class="btn primary" style="width:100%" onclick="reveal()">Tampilkan jawaban</button></div>
- <div class="row hidden" id="ratingRow"><button class="btn red" onclick="rate(0)">Lagi</button><button class="btn" onclick="rate(1)">Sulit</button><button class="btn green" onclick="rate(2)">Baik</button><button class="btn primary" onclick="rate(3)">Mudah</button></div>
-</section>
-<section id="library" class="hidden">
- <div class="panel"><h3>Tambah kartu</h3><label>Deck</label><input id="newDeck" placeholder="Contoh: Minna no Nihongo"><label>Depan</label><textarea id="newFront" placeholder="日本語 / pertanyaan"></textarea><label>Belakang</label><textarea id="newBack" placeholder="Arti / jawaban"></textarea><label>Video URL (opsional)</label><input id="newVideo" placeholder="https://..."><label>Subtitle / catatan (opsional)</label><textarea id="newSubtitle"></textarea><button class="btn primary" onclick="addCard()">Simpan kartu</button></div>
- <div class="panel"><h3>Impor file</h3><p class="muted small">Impor deck Anki (.apkg) atau spreadsheet CSV. File diproses di browser; isi file tidak dikirim ke server.</p><label>File .apkg atau .csv</label><input type="file" id="apkgFileInput" accept=".apkg,.csv,.zip,application/zip,application/octet-stream,text/csv" onchange="runImportFile()"><button class="btn primary" onclick="runImportFile()">Impor file</button><p class="small muted" id="importStatus"></p><div class="notice">Catatan: impor .apkg membutuhkan koneksi internet pertama kali untuk memuat mesin pembaca database dan ZIP. Setelah berhasil dimuat, library akan tersimpan di cache browser. Deck yang berisi tipe kartu kompleks, template khusus, atau media tertentu mungkin perlu penyesuaian tampilan.</div></div>
- <div class="panel"><h3>Ekspor</h3><button class="btn" onclick="exportCSV()">Ekspor kartu ke CSV</button></div>
-</section>
-<section id="stats" class="hidden">
- <div class="panel"><h3>Statistik belajar</h3><div class="grid"><div class="stat"><span class="muted small">Total kartu</span><b id="sTotal">0</b></div><div class="stat"><span class="muted small">Sudah pernah</span><b id="sSeen">0</b></div><div class="stat"><span class="muted small">Jatuh tempo</span><b id="sDue">0</b></div><div class="stat"><span class="muted small">Hari ini</span><b id="sToday">0</b></div></div></div>
-</section>
-</main>
-<nav class="tabs"><button class="active" data-tab="home" onclick="showTab('home')">Beranda</button><button data-tab="study" onclick="startStudy()">Belajar</button><button data-tab="library" onclick="showTab('library')">Kartu & impor</button><button data-tab="stats" onclick="showTab('stats')">Statistik</button></nav>
+:root{--bg:#2c2c2c;--pn:#3a3a3a;--ink:#f0f0f0;--mut:#9a9a9a;--ln:#4a4a4a;--bl:#4da3ff;--rd:#ff6b6b;--gr:#4cd964;--hd:#1f1f1f;--bt:#484848}
+:root[data-t=light]{--bg:#fff;--pn:#f1f1f1;--ink:#111;--mut:#777;--ln:#ddd;--bl:#0a6ed1;--rd:#d12d2d;--gr:#1a9e3a;--hd:#2b2b2b;--bt:#e4e4e4}
+*{box-sizing:border-box}
+html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+input,textarea,select{-webkit-user-select:text;user-select:text;font:inherit;font-size:16px;width:100%;padding:11px;margin:4px 0 10px;background:var(--pn);color:var(--ink);border:1px solid var(--ln);border-radius:8px}
+textarea{min-height:70px}
+#app,#rv{position:absolute;inset:0;display:flex;flex-direction:column}
+#rv{z-index:20;background:var(--bg)}
+.bar{flex:none;height:calc(52px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 8px 0;display:flex;align-items:center;justify-content:space-between;background:var(--hd);color:#fff}
+.bar b{font-size:18px}.ib{flex:none;width:44px;height:44px;border:0;background:none;color:#fff;font-size:24px}
+#pg,#cb{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
+#pg{padding:8px 0 16px}
+nav,.foot{flex:none;height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--hd);border-top:1px solid var(--ln)}
+nav button{flex:1;border:0;background:none;color:#aaa;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button i{font-style:normal;font-size:21px}nav .on{color:var(--bl);font-weight:700}
+.foot{align-items:stretch;gap:6px;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.foot button{flex:1;border:0;border-radius:10px;background:var(--bt);color:var(--ink);font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.foot small{font-size:11px;font-weight:400;color:var(--mut)}.foot .a1{color:var(--rd)}.foot .a3{color:var(--gr)}.foot .a4{color:var(--bl)}
+.row{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--ln);gap:8px}.row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cn{width:42px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}.n0{color:var(--mut)!important;font-weight:400}
+.hh{color:var(--mut);font-size:12px;border-bottom:1px solid var(--ln);padding:6px 14px;display:flex}
+.pn{background:var(--pn);margin:10px 12px;border-radius:12px;padding:14px}.pn h3{margin:0 0 8px;font-size:16px}
+.btn{border:0;border-radius:10px;background:var(--bt);color:var(--ink);padding:12px 16px;font-weight:600;font-size:15px}.btn.p{background:var(--bl);color:#fff}.btn.d{background:var(--rd);color:#fff}.w{width:100%}
+.mut{color:var(--mut)}.c{text-align:center}.hidden{display:none!important}
+#sh{position:fixed;inset:0;z-index:30;background:#0009;display:flex;align-items:flex-end}#shb{width:100%;max-height:85%;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+#shb .btn{display:block;width:100%;margin:6px 0;text-align:left}
+.cnt{display:flex;gap:14px;font-weight:700;font-size:15px}.u{text-decoration:underline}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:8px}.bars div{flex:1;background:var(--bl);border-radius:3px 3px 0 0;min-height:2px;position:relative}.bars span{position:absolute;top:-17px;width:100%;text-align:center;font-size:11px}
+</style></head><body>
+<div id="app"><div class="bar"><b id="ttl">Dek</b><button class="ib" id="hb" onclick="addMenu()">＋</button></div><div id="pg"></div>
+<nav><button data-k="decks" class="on"><i>🗂</i>Dek</button><button data-k="browse"><i>🔍</i>Cari</button><button data-k="stats"><i>📊</i>Statistik</button><button data-k="set"><i>⚙️</i>Setelan</button></nav></div>
+<div id="rv" class="hidden"><div class="bar"><button class="ib" onclick="closeRv()">←</button><div class="cnt" id="rc"></div><button class="ib" onclick="rvMenu()">⋮</button></div><div id="cb" onclick="cardTap(event)"><div id="host"></div></div><div class="foot" id="rf"></div></div>
+<div id="sh" class="hidden" onclick="if(event.target==this)shut()"><div id="shb"></div></div>
+<input type="file" id="fi" accept=".apkg,.zip,.csv" class="hidden" onchange="doImport(this.files[0]);this.value=''">
 <script>
-const DBKEY='nihongo_master_v2_cards';
-let cards=JSON.parse(localStorage.getItem(DBKEY)||'null')||[
-{ id:1,deck:'Minna no Nihongo · Contoh',front:'わたしは学生です。',back:'Saya adalah pelajar.',due:0,interval:0,reps:0 },
-{ id:2,deck:'Minna no Nihongo · Contoh',front:'コーヒーを飲みたいです。',back:'Saya ingin minum kopi.',due:0,interval:0,reps:0 },
-{ id:3,deck:'Minna no Nihongo · Contoh',front:'いっしょに映画を見ませんか。',back:'Maukah menonton film bersama?',due:0,interval:0,reps:0 }
-];
-let current=[],idx=0,active=null,shown=false;
-function save(){localStorage.setItem(DBKEY,JSON.stringify(cards))}
-function dayStart(){let d=new Date();d.setHours(0,0,0,0);return d.getTime()}
-function dueCards(){return cards.filter(c=>(c.due||0)<=Date.now())}
-function render(){save();document.getElementById('dueCount').textContent=dueCards().length;document.getElementById('totalCount').textContent=cards.length;document.getElementById('todayCount').textContent=cards.filter(c=>(c.last||0)>=dayStart()).length;document.getElementById('sTotal').textContent=cards.length;document.getElementById('sSeen').textContent=cards.filter(c=>c.reps>0).length;document.getElementById('sDue').textContent=dueCards().length;document.getElementById('sToday').textContent=cards.filter(c=>(c.last||0)>=dayStart()).length;
-let groups={};cards.forEach(c=>groups[c.deck||'Tanpa deck']=(groups[c.deck||'Tanpa deck']||0)+1);document.getElementById('deckList').innerHTML=Object.entries(groups).map(([d,n])=>`<div class="deck row between"><span>${esc(d)}</span><b>${n} kartu</b></div>`).join('')||'<p class="muted">Belum ada kartu.</p>'}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function showTab(tab){['home','study','library','stats'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==tab));document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));if(tab!=='study')render()}
-function startStudy(){current=dueCards().sort((a,b)=>(a.due||0)-(b.due||0));idx=0;showTab('study');nextCard()}
-function nextCard(){if(idx>=current.length){document.getElementById('front').textContent='Selesai! 🎉';document.getElementById('backArea').classList.add('hidden');document.getElementById('showAnswerRow').classList.add('hidden');document.getElementById('ratingRow').classList.add('hidden');document.getElementById('studyProgress').textContent='';render();return}active=current[idx];shown=false;document.getElementById('studyDeck').textContent=active.deck||'';renderCardSide('front',active.front||'');renderCardSide('back',active.back||'');document.getElementById('backArea').classList.add('hidden');document.getElementById('showAnswerRow').classList.remove('hidden');document.getElementById('ratingRow').classList.add('hidden');document.getElementById('studyProgress').textContent=(idx+1)+' / '+current.length}
-function reveal(){document.getElementById('backArea').classList.remove('hidden');document.getElementById('showAnswerRow').classList.add('hidden');document.getElementById('ratingRow').classList.remove('hidden')}
-function rate(q){let now=Date.now(),iv=active.interval||0;if(q===0)iv=0;else if(q===1)iv=Math.max(1,Math.round(iv*1.2)||1);else if(q===2)iv=iv===0?1:Math.max(1,Math.round(iv*2.5));else iv=iv===0?4:Math.max(4,Math.round(iv*3.5));active.interval=iv;active.due=now+iv*86400000;active.reps=(active.reps||0)+1;active.last=now;idx++;nextCard()}
-function addCard(){let deck=document.getElementById('newDeck').value.trim()||'Kartu saya',front=document.getElementById('newFront').value.trim(),back=document.getElementById('newBack').value.trim();if(!front||!back){alert('Isi bagian depan dan belakang dulu.');return}cards.push({id:Date.now()+Math.random(),deck,front,back,video:document.getElementById('newVideo').value.trim(),subtitle:document.getElementById('newSubtitle').value.trim(),due:0,interval:0,reps:0});['newFront','newBack','newVideo','newSubtitle'].forEach(id=>document.getElementById(id).value='');render();alert('Kartu tersimpan.')}
-async function runImportFile(){let f=document.getElementById('apkgFileInput').files[0];if(!f){alert('Pilih file terlebih dahulu.');return}let st=document.getElementById('importStatus');st.textContent='Memproses '+f.name+'…';let importBtn=document.querySelector('#library button[onclick="runImportFile()"]');if(importBtn)importBtn.disabled=true;try{if(f.name.toLowerCase().endsWith('.csv')){let txt=await f.text();let rows=parseCSV(txt);let head=rows.shift().map(x=>x.trim().toLowerCase());let ix=k=>head.indexOf(k);let n=0;rows.forEach(r=>{let front=r[ix('front')],back=r[ix('back')];if(front&&back){cards.push({id:Date.now()+Math.random(),deck:r[ix('deck')]||'Impor CSV',front,back,japanese:r[ix('japanese')]||'',video:r[ix('video')]||'',subtitle:r[ix('subtitle')]||'',due:0,interval:0,reps:0});n++}});render();st.textContent='Berhasil mengimpor '+n+' kartu dari CSV.'}
-else if(f.name.toLowerCase().endsWith('.apkg')){await loadApkgLibs();let buf=await f.arrayBuffer();let zip=await JSZip.loadAsync(buf);let mediaMap={};try{let mf=zip.file('media');if(mf)mediaMap=JSON.parse(await mf.async('text'))}catch(e){}let mediaSaved=0;for(let [mediaId,mediaName] of Object.entries(mediaMap)){let mf=zip.file(String(mediaId));if(mf){let blob=await mf.async('blob');await putMedia(mediaName,blob);mediaSaved++}}let dbfile=zip.file('collection.anki21')||zip.file('collection.anki2');if(!dbfile)throw Error('Database collection.anki2/anki21 tidak ditemukan.');let dbbuf=await dbfile.async('uint8array');let SQL=await initSqlJs({locateFile:file=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/'+file});let db=new SQL.Database(dbbuf);let q=db.exec('SELECT id, mid, flds, tags FROM notes');if(!q.length)throw Error('Tidak ada catatan di deck ini.');let models={};try{let m=db.exec('SELECT models FROM col');models=JSON.parse(m[0].values[0][0])}catch(e){}let n=0;for(let row of q[0].values){let [nid,mid,flds,tags]=row;let model=models[mid]||{};let fields=String(flds||'').split('\x1f');let names=(model.flds||[]).map(x=>x.name);let fieldObj={};names.forEach((nm,i)=>fieldObj[nm]=fields[i]||'');let front=fieldObj.Front||fieldObj.front||fields[0]||'';let back=fieldObj.Back||fieldObj.back||fields[1]||fields[0]||'';front=String(front||'');back=String(back||'');if(!front&&!back)continue;let deckName='Anki import';try{let ds=db.exec('SELECT decks FROM col');let decks=JSON.parse(ds[0].values[0][0]);let cardQ=db.exec('SELECT did FROM cards WHERE nid='+Number(nid)+' LIMIT 1');if(cardQ.length){let d=decks[cardQ[0].values[0][0]];if(d)deckName=d.name||deckName}}catch(e){}cards.push({id:Date.now()+Math.random(),deck:deckName,front,back,tags:String(tags||''),apkgMedia:true,due:0,interval:0,reps:0});n++}db.close();render();st.textContent='Berhasil mengimpor '+n+' catatan dan '+mediaSaved+' file media dari APKG. Video/audio/gambar akan tampil jika direferensikan oleh kartu.'}
-else throw Error('Format file belum didukung.');}catch(e){console.error(e);st.textContent='Gagal impor: '+e.message;alert('Impor gagal: '+e.message)}finally{if(importBtn)importBtn.disabled=false;document.getElementById('apkgFileInput').value=''}}
-
-const MEDIA_DB='nihongo_master_media_v1',MEDIA_STORE='files';
-function mediaDB(){return new Promise((resolve,reject)=>{let r=indexedDB.open(MEDIA_DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(MEDIA_STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
-async function putMedia(name,blob){let db=await mediaDB();return new Promise((resolve,reject)=>{let tx=db.transaction(MEDIA_STORE,'readwrite');tx.objectStore(MEDIA_STORE).put(blob,name);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
-async function getMedia(name){let db=await mediaDB();return new Promise((resolve,reject)=>{let tx=db.transaction(MEDIA_STORE,'readonly'),r=tx.objectStore(MEDIA_STORE).get(name);r.onsuccess=()=>{db.close();resolve(r.result||null)};r.onerror=()=>{db.close();reject(r.error)}})}
-async function mediaUrl(name){let blob=await getMedia(name);return blob?URL.createObjectURL(blob):null}
-async function renderCardSide(id,html){let el=document.getElementById(id);let raw=String(html||'').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/\son\w+\s*=\s*(['"]).*?\1/gi,'');let refs=[...raw.matchAll(/(?:src|href)=["']([^"']+)["']/gi)].map(m=>m[1]);for(let ref of refs){let name=ref.replace(/^.*\//,'');if(!name||/^(https?:|data:|blob:)/i.test(ref))continue;let u=await mediaUrl(name);if(u)raw=raw.split(ref).join(u)}
-raw=raw.replace(/\[sound:([^\]]+)\]/gi,(_,name)=>`<audio controls preload="metadata" src="${URL.createObjectURL(new Blob([]))}" data-anki-media="${esc(name)}"></audio>`);
-el.innerHTML=raw;
-for(let a of el.querySelectorAll('[data-anki-media]')){let u=await mediaUrl(a.dataset.ankiMedia);if(u)a.src=u;else a.remove()}
-for(let v of el.querySelectorAll('video')){v.controls=true;v.playsInline=true}
-}
-
-function cleanAnki(s){return String(s||'').replace(/<br\\s*\\/?>/gi,'<br>').trim()}
-async function loadApkgLibs(){if(!window.JSZip){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js')}if(!window.initSqlJs){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js')}}
-function loadScript(src){return new Promise((res,rej)=>{let s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(Error('Tidak bisa memuat pustaka impor. Periksa koneksi internet.'));document.head.appendChild(s)})}
-function parseCSV(t){let out=[],row=[],v='',q=false;for(let i=0;i<t.length;i++){let c=t[i];if(c==='"'&&q&&t[i+1]==='"'){v+='"';i++}else if(c==='"')q=!q;else if(c===','&&!q){row.push(v);v=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&t[i+1]==='\n')i++;row.push(v);out.push(row);row=[];v=''}else v+=c}if(v||row.length){row.push(v);out.push(row)}return out}
-function exportCSV(){let lines=[['deck','front','back','video','subtitle'],...cards.map(c=>[c.deck,c.front,c.back,c.video||'',c.subtitle||''])];let csv=lines.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='nihongo-master.csv';a.click();URL.revokeObjectURL(a.href)}
-function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('nihongo_theme',t);let b=document.getElementById('themeBtn');if(b)b.textContent=t==='dark'?'☀️ Light':'🌙 Dark';let m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#090a0c':'#171717'}
-function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
-applyTheme(localStorage.getItem('nihongo_theme')||'dark');
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));render();
+const $=s=>document.querySelector(s),H=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let IDB;const DAY=864e5,today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4-144e5)/DAY),uid=()=>Date.now()*1000+Math.floor(Math.random()*1000);
+const opn=()=>new Promise((r,j)=>{const q=indexedDB.open('nihongo_anki',1);q.onupgradeneeded=()=>['kv','notes','cards','media'].forEach(n=>q.result.createObjectStore(n));q.onsuccess=()=>{IDB=q.result;r()};q.onerror=()=>j(q.error)});
+const PM=(s,a)=>new Promise((r,j)=>{const t=IDB.transaction(s,'readwrite'),o=t.objectStore(s);a.forEach(([k,v])=>v===undefined?o.delete(k):o.put(v,k));t.oncomplete=r;t.onerror=()=>j(t.error)});
+const G=(s,k)=>new Promise(r=>{const q=IDB.transaction(s).objectStore(s).get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r()});
+const A=s=>new Promise(r=>{const q=IDB.transaction(s).objectStore(s).getAll();q.onsuccess=()=>r(q.result)});
+let S={decks:{},models:{},cfg:{nd:20,rd:200,steps:[1,10],auto:true,theme:'dark'},cnt:{d:0,n:{},r:{}},hist:{}},notes=new Map,cards=new Map,tab='decks',col=new Set,cur=null,ans=false,deckN='',undoS=null,typed='';
+const saveMeta=()=>PM('kv',[['meta',S]]),saveC=c=>{cards.set(c.id,c);return PM('cards',[[c.id,c]])};
+const BASIC={id:'basic',name:'Basic',type:0,flds:['Front','Back'],css:'',tmpls:[{name:'Card 1',qfmt:'{{Front}}',afmt:'{{FrontSide}}<hr id=answer>{{Back}}'}]};
+async function init(){await opn();const m=await G('kv','meta');if(m)Object.assign(S,m);S.models.basic=S.models.basic||BASIC;
+for(const n of await A('notes'))notes.set(n.id,n);for(const c of await A('cards'))cards.set(c.id,c);
+if(!m){try{const o=JSON.parse(localStorage.getItem('nihongo_master_v2_cards')||'[]');for(const x of o){if(x.id<10||!x.front)continue;await mkNote('basic',x.deck||'Kartu saya',[x.front,x.back||''],'',1)}}catch(e){}}
+if(S.cnt.d!==today())S.cnt={d:today(),n:{},r:{}};theme(S.cfg.theme);await saveMeta();go('decks');navigator.storage?.persist?.();
+if(navigator.onLine)['sql-wasm.js','sql-wasm.wasm'].forEach(f=>fetch(SQL_CDN+f).catch(()=>{}))}
+const SQL_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/';
+function theme(t){S.cfg.theme=t;document.documentElement.dataset.t=t}
+function deckId(name){let d=Object.values(S.decks).find(x=>x.name===name);if(!d){d={id:uid(),name};S.decks[d.id]=d}return d.id}
+async function mkNote(mid,deck,f,tags,quiet){const n={id:uid(),mid,f,tags:tags||''},did=deckId(deck),cs=[],md=S.models[mid];let pos=[...cards.values()].reduce((a,c)=>Math.max(a,c.t==0?c.due:0),0)+1;
+const ords=md.type==1?[...new Set([...f.join(' ').matchAll(/\{\{c(\d+)::/g)].map(x=>+x[1]-1))]:md.tmpls.map((_,i)=>i);
+ords.forEach((o,i)=>cs.push({id:uid()+i,nid:n.id,did,ord:o,t:0,due:pos+i,ivl:0,f:2500,r:0,l:0,q:0}));
+notes.set(n.id,n);cs.forEach(c=>cards.set(c.id,c));await PM('notes',[[n.id,n]]);await PM('cards',cs.map(c=>[c.id,c]));if(!quiet)await saveMeta();return n}
+/* ---------- penjadwal (SM-2 ala Anki) ---------- */
+function sched(o,r){const c={...o},st=S.cfg.steps,td=today(),now=Date.now();
+const grad=v=>{c.t=2;c.rl=0;c.ivl=Math.max(1,Math.round(v));c.due=td+c.ivl;c.s=0},lrn=(i,a)=>{c.t=1;c.s=i;c.due=now+a[i]*6e4};
+if(o.t==2){const iv=o.ivl,f=o.f||2500,h=Math.max(iv+1,Math.round(iv*1.2)),g=Math.max(h+1,Math.round(iv*f/1000)),e=Math.max(g+1,Math.round(iv*f/1000*1.3));
+if(r==1){c.l=(o.l||0)+1;c.f=Math.max(1300,f-200);c.ivl=Math.max(1,Math.round(iv*0));c.rl=1;lrn(0,[10])}
+else if(r==2){c.f=Math.max(1300,f-150);grad(h)}else if(r==3)grad(g);else{c.f=f+150;grad(e)}}
+else{const a=o.rl?[10]:st,i=o.t==0?0:o.s||0;c.f=c.f||2500;
+if(r==1)lrn(0,a);else if(r==2)lrn(i,a);else if(r==3)i+1<a.length?lrn(i+1,a):grad(o.rl?o.ivl:1);else grad(o.rl?o.ivl+1:4)}
+return c}
+const lab=n=>{if(n.t==1){const m=Math.max(1,Math.round((n.due-Date.now())/6e4));return m<60?m+'m':Math.round(m/60)+'h'}const d=n.ivl;return d<30?d+'d':d<365?(d/30).toFixed(1).replace('.0','')+'mo':(d/365).toFixed(1)+'y'};
+const subIds=name=>new Set(Object.values(S.decks).filter(d=>d.name===name||d.name.startsWith(name+'::')).map(d=>d.id));
+const avail=c=>!c.q&&!(c.b>today());
+function counts(name){const ids=subIds(name),td=today(),la=Date.now()+12e5;let n=0,l=0,r=0,dn=0,dr=0;
+for(const c of cards.values()){if(!ids.has(c.did)||!avail(c))continue;if(c.t==0)n++;else if(c.t==1){if(c.due<=la)l++}else if(c.due<=td)r++}
+for(const i of ids){dn+=S.cnt.n[i]||0;dr+=S.cnt.r[i]||0}return{n:Math.min(n,Math.max(0,S.cfg.nd-dn)),l,r:Math.min(r,Math.max(0,S.cfg.rd-dr))}}
+function pick(name){const ids=subIds(name),td=today(),now=Date.now(),k=counts(name);let L=null,R=null,N=null,LA=null;
+for(const c of cards.values()){if(!ids.has(c.did)||!avail(c))continue;
+if(c.t==1){if(c.due<=now){if(!L||c.due<L.due)L=c}else if(c.due<=now+12e5&&(!LA||c.due<LA.due))LA=c}
+else if(c.t==2){if(c.due<=td&&(!R||c.due<R.due))R=c}else if(!N||c.due<N.due)N=c}
+return L||(k.r>0&&R)||(k.n>0&&N)||LA||null}
+/* ---------- navigasi ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.k));
+const TT={decks:'Dek',browse:'Cari kartu',stats:'Statistik',set:'Setelan'};
+function go(k){tab=k;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#ttl').textContent=TT[k];$('#hb').style.visibility=k=='decks'?'visible':'hidden';$('#pg').scrollTop=0;({decks:vDecks,browse:vBrowse,stats:vStats,set:vSet})[k]()}
+const pg=h=>$('#pg').innerHTML=h;
+function vDecks(){const names=new Set;Object.values(S.decks).forEach(d=>{const p=d.name.split('::');p.forEach((_,i)=>names.add(p.slice(0,i+1).join('::')))});
+let list=[...names].sort((a,b)=>a.localeCompare(b)).filter(n=>n!=='Default'||[...cards.values()].some(c=>S.decks[c.did]?.name==='Default'));
+const hasKid=n=>list.some(x=>x.startsWith(n+'::'));
+const rows=list.filter(n=>{const p=n.split('::');return !p.slice(0,-1).some((_,i)=>col.has(p.slice(0,i+1).join('::')))}).map(n=>{const k=counts(n),p=n.split('::'),z=v=>v?'':' n0';
+return`<div class="row" data-d="${H(n)}" style="padding-left:${14+(p.length-1)*18}px"><span data-t="${H(n)}" style="width:20px;color:var(--mut)">${hasKid(n)?(col.has(n)?'▸':'▾'):''}</span><span class="nm">${H(p[p.length-1])}</span><span class="cn${z(k.n)}" style="color:var(--bl)">${k.n}</span><span class="cn${z(k.l)}" style="color:var(--rd)">${k.l}</span><span class="cn${z(k.r)}" style="color:var(--gr)">${k.r}</span></div>`}).join('');
+pg(`<div class="hh"><span style="flex:1"></span><span class="cn">Baru</span><span class="cn">Belajar</span><span class="cn">Ulang</span></div>${rows||'<p class="c mut" style="margin-top:60px">Belum ada dek.<br>Ketuk ＋ untuk impor .apkg atau tambah kartu.</p>'}`);
+$('#pg').onclick=e=>{const t=e.target.closest('[data-t]');if(t){col.has(t.dataset.t)?col.delete(t.dataset.t):col.add(t.dataset.t);return vDecks()}const r=e.target.closest('[data-d]');if(r)overview(r.dataset.d)}}
+function overview(n){const k=counts(n),any=k.n+k.l+k.r>0;deckN=n;$('#pg').onclick=null;$('#ttl').textContent=n.split('::').pop();
+pg(`<div class="pn c"><h2 style="margin:6px 0 16px">${H(n)}</h2><div class="cnt" style="justify-content:center;font-size:20px"><span style="color:var(--bl)">${k.n} <small class=mut>baru</small></span><span style="color:var(--rd)">${k.l} <small class=mut>belajar</small></span><span style="color:var(--gr)">${k.r} <small class=mut>ulang</small></span></div>
+${any?'':'<p class="mut" style="margin:18px 0">Selamat! Dek ini sudah selesai untuk saat ini.</p>'}<button class="btn p w" style="margin-top:18px" ${any?'':'disabled'} onclick="study()">Belajar sekarang</button><button class="btn w" style="margin-top:10px" onclick="go('decks')">← Kembali</button><button class="btn w" style="margin-top:10px;color:var(--rd)" onclick="delDeck()">Hapus dek</button></div>`)}
+async function delDeck(){if(!confirm('Hapus dek ini beserta semua kartunya?'))return;const ids=subIds(deckN),del=[...cards.values()].filter(c=>ids.has(c.did));del.forEach(c=>cards.delete(c.id));ids.forEach(i=>delete S.decks[i]);await PM('cards',del.map(c=>[c.id,undefined]));await saveMeta();go('decks')}
+/* ---------- reviewer ---------- */
+function study(){$('#rv').classList.remove('hidden');undoS=null;nextCard()}
+function closeRv(){$('#rv').classList.add('hidden');$('#host').replaceChildren();overview(deckN)}
+function nextCard(){cur=pick(deckN);ans=false;typed='';if(!cur){$('#rv').classList.add('hidden');return overview(deckN)}paint();$('#cb').scrollTop=0}
+function paint(){const k=counts(deckN),t=cur.t;$('#rc').innerHTML=`<span class="${t==0?'u':''}" style="color:var(--bl)">${k.n}</span><span class="${t==1?'u':''}" style="color:var(--rd)">${k.l}</span><span class="${t==2?'u':''}" style="color:var(--gr)">${k.r}</span>`;
+showCard();$('#rf').innerHTML=ans?[1,2,3,4].map(r=>`<button onclick="answer(${r})"><small class="a${r}">${lab(sched(cur,r))}</small>${['Lagi','Sulit','Baik','Mudah'][r-1]}</button>`).join(''):`<button onclick="reveal()" style="font-size:17px">Tampilkan jawaban</button>`}
+function reveal(){if(ans)return;const ti=$('#host').shadowRoot?.getElementById('typein');typed=ti?ti.value:'';ans=true;paint();const a=$('#host').shadowRoot.getElementById('answer');if(a)a.scrollIntoView({block:'start'})}
+function cardTap(e){if(ans)return;if(e.composedPath().some(x=>x.matches?.('video,audio,a,input,button,.rp')))return;reveal()}
+async function answer(r){const n=sched(cur,r);undoS={c:{...cur},cnt:JSON.stringify(S.cnt),h:S.hist[today()]||0};
+if(cur.t==0)S.cnt.n[cur.did]=(S.cnt.n[cur.did]||0)+1;if(cur.t==2)S.cnt.r[cur.did]=(S.cnt.r[cur.did]||0)+1;S.hist[today()]=(S.hist[today()]||0)+1;n.r=(cur.r||0)+1;n.last=Date.now();
+await saveC(n);await saveMeta();nextCard()}
+async function undo(){if(!undoS)return;shut();cards.set(undoS.c.id,undoS.c);S.cnt=JSON.parse(undoS.cnt);S.hist[today()]=undoS.h;await saveC(undoS.c);await saveMeta();cur=undoS.c;undoS=null;ans=false;paint()}
+function rvMenu(){sheet(`<button class="btn" onclick="undo()" ${undoS?'':'disabled'}>↩︎ Urungkan jawaban</button><button class="btn" onclick="shut();replay()">▶︎ Putar ulang media</button><button class="btn" onclick="shut();editNote(cur.nid,1)">✏️ Edit kartu</button><button class="btn" onclick="flag('b')">💤 Tunda sampai besok</button><button class="btn" onclick="flag('s')">⏸ Tangguhkan kartu</button><button class="btn" style="color:var(--rd)" onclick="flag('d')">🗑 Hapus catatan</button>`)}
+async function flag(k){shut();const c=cur;if(k=='b')c.b=today()+1;if(k=='s')c.q=-1;if(k=='d'){if(!confirm('Hapus catatan ini?'))return;const del=[...cards.values()].filter(x=>x.nid==c.nid);del.forEach(x=>cards.delete(x.id));notes.delete(c.nid);await PM('cards',del.map(x=>[x.id,undefined]));await PM('notes',[[c.nid,undefined]])}else await saveC(c);nextCard()}
+const replay=()=>{const m=$('#host').shadowRoot.querySelector('video,audio');if(m){m.currentTime=0;m.play().catch(()=>{})}};
+/* ---------- render template Anki ---------- */
+const strip=s=>String(s).replace(/<[^>]*>|&nbsp;/g,'').trim();
+const clz=(v,o,a)=>v.replace(/\{\{c(\d+)::([\s\S]*?)(?:::([\s\S]*?))?\}\}/g,(_,n,t,h)=>+n==o?`<span class="cloze">${a?t:'['+(h||'...')+']'}</span>`:t);
+const FUR=/([^ >\[\]]+)\[(?!sound:)(.+?)\]/g;
+function tpl(t,f,c,a){let p;do{p=t;t=t.replace(/\{\{([#^])\s*([^}]+?)\s*\}\}([\s\S]*?)\{\{\/\s*\2\s*\}\}/g,(_,k,n,i)=>(strip(f[n]??'')!=='')==(k=='#')?i:'')}while(p!==t);
+return t.replace(/\{\{\{?\s*([^}]+?)\s*\}?\}\}/g,(_,x)=>{const ps=x.split(':'),n=ps.pop();if(n=='FrontSide')return f.FrontSide||'';let v=f[n]??'';
+for(const fl of ps.reverse()){if(fl=='cloze')v=clz(v,c.ord+1,a);else if(fl=='text')v=strip(v);else if(fl=='furigana')v=v.replace(FUR,'<ruby>$1<rt>$2</rt></ruby>');else if(fl=='kanji')v=v.replace(FUR,'$1');else if(fl=='kana')v=v.replace(FUR,'$2');
+else if(fl=='hint')v=v?`<a class="hint" onclick="this.style.display='none';this.nextSibling.style.display='inline'">Petunjuk ${H(n)}</a><span style="display:none">${v}</span>`:'';
+else if(fl=='type')v=a?`<div class="rp"><code>${H(typed)}</code><br><code>${H(strip(v))}</code></div>`:`<input id="typein" class="rp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">`}
+return v})}
+const EXT={mp4:'video/mp4',m4v:'video/mp4',webm:'video/webm',mov:'video/quicktime',mkv:'video/x-matroska',mp3:'audio/mpeg',m4a:'audio/mp4',aac:'audio/aac',ogg:'audio/ogg',wav:'audio/wav',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',svg:'image/svg+xml'},mime=n=>EXT[n.split('.').pop().toLowerCase()]||'';
+const dec=n=>{try{return decodeURIComponent(n)}catch{return n}};
+function cardHtml(c,a){const n=notes.get(c.nid),m=S.models[n.mid]||BASIC,f={};m.flds.forEach((k,i)=>f[k]=n.f[i]||'');f.Tags=n.tags;f.Deck=S.decks[c.did]?.name||'';f.Card=(m.tmpls[c.ord]||m.tmpls[0]).name;f.Type=m.name;
+const T=m.tmpls[c.ord]||m.tmpls[0];f.FrontSide=tpl(T.qfmt,f,c,false);let h=a?tpl(T.afmt,f,c,true):f.FrontSide;
+h=h.replace(/\[sound:(.+?)\]/g,(_,s)=>/^video/.test(mime(s))?`<video controls playsinline preload="metadata" data-m="${H(s)}"></video>`:`<a class="rp pl" onclick="var x=this.nextSibling;x.paused?x.play():x.pause()">▶</a><audio data-m="${H(s)}"></audio>`);
+h=h.replace(/(<(?:img|source|video|audio)\b[^>]*?\s)src=(["'])(?!https?:|data:|blob:)(.*?)\2/gi,'$1data-m=$2$3$2');return[h,m.css||'']}
+const BASE=':host{display:block}.card{font-family:arial,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:22px;text-align:center;padding:18px 14px 30px;word-wrap:break-word;color:var(--ink)!important;background:transparent!important}img,video{max-width:100%;height:auto}video{display:block;margin:10px auto;border-radius:8px}hr{border:0;border-top:1px solid var(--ln)}.cloze{font-weight:700;color:var(--bl)}.hint{color:var(--bl);cursor:pointer;text-decoration:underline}.rp input,input.rp{font:inherit;width:90%;padding:8px;border-radius:8px;border:1px solid var(--ln);background:var(--pn);color:var(--ink)}.pl{display:inline-block;width:42px;height:42px;line-height:42px;border-radius:50%;background:var(--bt);margin:4px;cursor:pointer}code{font-size:20px}audio{display:none}.miss{display:none}';
+const URLS=new Map;async function murl(n){if(URLS.has(n))return URLS.get(n);const b=await G('media',n);if(!b)return null;const u=URL.createObjectURL(b);if(URLS.size>40){const k=URLS.keys().next().value;URL.revokeObjectURL(URLS.get(k));URLS.delete(k)}URLS.set(n,u);return u}
+async function showCard(){const [h,css]=cardHtml(cur,ans),host=$('#host'),r=host.shadowRoot||host.attachShadow({mode:'open'}),id=cur.id;
+r.innerHTML=`<style>${BASE}${css.replace(/@import[^;]*;/g,'')}</style><div class="card">${h}</div>`;
+for(const el of r.querySelectorAll('[data-m]')){const u=await murl(dec(el.dataset.m));if(id!==cur?.id)return;if(u){el.src=u;if(el.tagName=='SOURCE')el.parentNode.load()}else el.classList.add('miss')}
+if(S.cfg.auto){const m=r.querySelector('video,audio');m?.play?.().catch(()=>{})}const t=r.getElementById('typein');if(t&&!ans)t.focus({preventScroll:true})}
+/* ---------- cari / edit ---------- */
+function vBrowse(){pg(`<div style="padding:8px 12px"><input id="q" placeholder="Cari teks, tag, atau dek…" oninput="bl()"></div><div id="bl"></div>`);bl()}
+function bl(){const q=($('#q')?.value||'').toLowerCase();let out=[],tot=0;for(const n of notes.values()){const t=n.f.map(strip).join(' · '),d=S.decks[[...cards.values()].find(c=>c.nid==n.id)?.did]?.name||'';if(!q||(t+' '+n.tags+' '+d).toLowerCase().includes(q)){tot++;if(out.length<150)out.push(`<div class="row" onclick="editNote(${n.id})" style="display:block"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${H(t)}</div><small class="mut">${H(d)}</small></div>`)}}
+$('#bl').innerHTML=`<p class="mut" style="margin:0 14px">${tot} catatan${tot>150?' (150 pertama)':''}</p>`+out.join('')}
+function editNote(id,inRv){const n=notes.get(id),m=S.models[n.mid]||BASIC;sheet(`<h3 style="margin:0 0 8px">Edit catatan</h3>${m.flds.map((k,i)=>`<label class="mut">${H(k)}</label><textarea id="ef${i}">${H(n.f[i]||'')}</textarea>`).join('')}<label class="mut">Tag</label><input id="et" value="${H(n.tags)}"><button class="btn p w" style="text-align:center" onclick="saveNote(${id},${inRv||0})">Simpan</button>${inRv?'':`<button class="btn" style="text-align:center;color:var(--rd)" onclick="delNote(${id})">Hapus</button>`}`)}
+async function saveNote(id,inRv){const n=notes.get(id);n.f=n.f.map((_,i)=>$('#ef'+i)?.value??n.f[i]);n.tags=$('#et').value;await PM('notes',[[id,n]]);shut();if(inRv)paint();else bl()}
+async function delNote(id){if(!confirm('Hapus catatan ini?'))return;const del=[...cards.values()].filter(c=>c.nid==id);del.forEach(c=>cards.delete(c.id));notes.delete(id);await PM('cards',del.map(c=>[c.id,undefined]));await PM('notes',[[id,undefined]]);shut();bl()}
+/* ---------- statistik & setelan ---------- */
+function vStats(){const td=today(),t={n:0,l:0,y:0,m:0},fc=Array(7).fill(0);for(const c of cards.values()){if(c.t==0)t.n++;else if(c.t==1)t.l++;else{c.ivl>=21?t.m++:t.y++;const d=c.due-td;if(d<7)fc[Math.max(0,d)]++}}
+const mx=Math.max(1,...fc),hs=Object.entries(S.hist).sort((a,b)=>a[0]-b[0]).slice(-7);
+pg(`<div class="pn"><h3>Hari ini</h3><div style="font-size:26px;font-weight:700">${S.hist[td]||0} <small class="mut" style="font-size:14px">kartu dipelajari</small></div></div>
+<div class="pn"><h3>Jumlah kartu · ${cards.size}</h3>${[['Baru',t.n,'#4da3ff'],['Belajar',t.l,'#ff6b6b'],['Muda (&lt;21h)',t.y,'#8fe388'],['Matang',t.m,'#1a9e3a']].map(([a,b,c])=>`<div class="row" style="padding:7px 0"><span style="width:14px;height:14px;background:${c};border-radius:3px"></span><span class="nm">${a}</span><b>${b}</b></div>`).join('')}</div>
+<div class="pn"><h3>Perkiraan 7 hari</h3><div class="bars">${fc.map((v,i)=>`<div style="height:${v/mx*100}%"><span>${v}</span></div>`).join('')}</div><div class="hh" style="border:0;padding:4px 0">${fc.map((_,i)=>`<span style="flex:1;text-align:center">${i?'+'+i:'hari ini'}</span>`).join('')}</div></div>
+<div class="pn"><h3>7 hari terakhir</h3>${hs.map(([d,v])=>`<div class="row" style="padding:6px 0"><span class="nm mut">${new Date((+d)*DAY+DAY/2).toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})}</span><b>${v}</b></div>`).join('')||'<p class="mut">Belum ada data.</p>'}</div>`)}
+function vSet(){const c=S.cfg;pg(`<div class="pn"><h3>Tampilan</h3><button class="btn w" onclick="theme(S.cfg.theme=='dark'?'light':'dark');saveMeta();vSet()">${c.theme=='dark'?'☀️ Ganti ke mode terang':'🌙 Ganti ke mode gelap'}</button></div>
+<div class="pn"><h3>Belajar</h3><label class="mut">Kartu baru per hari</label><input type="number" inputmode="numeric" value="${c.nd}" onchange="S.cfg.nd=Math.max(0,+this.value||0);saveMeta()"><label class="mut">Maks ulangan per hari</label><input type="number" inputmode="numeric" value="${c.rd}" onchange="S.cfg.rd=Math.max(0,+this.value||0);saveMeta()"><label class="mut">Langkah belajar (menit, pisah spasi)</label><input value="${c.steps.join(' ')}" onchange="S.cfg.steps=this.value.split(/[ ,]+/).map(Number).filter(x=>x>0);if(!S.cfg.steps.length)S.cfg.steps=[1,10];saveMeta()">
+<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" style="width:22px;margin:0" ${c.auto?'checked':''} onchange="S.cfg.auto=this.checked;saveMeta()">Putar video/audio otomatis</label></div>
+<div class="pn"><h3>Data</h3><button class="btn p w" onclick="$('#fi').click()">Impor .apkg / .csv</button><button class="btn w" style="margin-top:8px" onclick="expCSV()">Ekspor CSV (teks saja)</button><button class="btn d w" style="margin-top:8px" onclick="wipe()">Hapus semua data</button></div>`)}
+async function wipe(){if(!confirm('Hapus SEMUA dek, kartu, dan media?'))return;indexedDB.deleteDatabase('nihongo_anki');localStorage.removeItem('nihongo_master_v2_cards');location.reload()}
+function expCSV(){const q=s=>'"'+String(s).replace(/"/g,'""')+'"',l=[['deck','front','back','tags'].join(',')];for(const n of notes.values()){const c=[...cards.values()].find(x=>x.nid==n.id);l.push([S.decks[c?.did]?.name||'',n.f[0]||'',n.f[1]||'',n.tags].map(q).join(','))}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([l.join('\r\n')],{type:'text/csv'}));a.download='nihongo-master.csv';a.click()}
+/* ---------- tambah kartu ---------- */
+function addMenu(){sheet(`<button class="btn" onclick="$('#fi').click();shut()">📥 Impor .apkg / .csv</button><button class="btn" onclick="addForm()">➕ Tambah kartu</button>`)}
+function addForm(){sheet(`<h3 style="margin:0 0 8px">Tambah kartu</h3><label class="mut">Dek</label><input id="ad" list="dl" value="${H(deckN||'Kartu saya')}"><datalist id="dl">${Object.values(S.decks).map(d=>`<option value="${H(d.name)}">`).join('')}</datalist><label class="mut">Depan</label><textarea id="af"></textarea><label class="mut">Belakang</label><textarea id="ab"></textarea><label class="mut">Video / audio / gambar (opsional)</label><input type="file" id="am" accept="video/*,audio/*,image/*"><button class="btn p w" style="text-align:center" onclick="addSave()">Simpan</button>`)}
+async function addSave(){const f=$('#af').value.trim(),b=$('#ab').value.trim(),m=$('#am').files[0];if(!f&&!m)return alert('Isi bagian depan dulu.');let fr=f.replace(/\n/g,'<br>');
+if(m){await PM('media',[[m.name,new Blob([m],{type:m.type||mime(m.name)})]]);fr+=(fr?'<br>':'')+(m.type.startsWith('image')?`<img src="${H(m.name)}">`:`[sound:${m.name}]`)}
+await mkNote('basic',$('#ad').value.trim()||'Kartu saya',[fr,b.replace(/\n/g,'<br>')],'');shut();go('decks')}
+/* ---------- impor ---------- */
+async function zipOpen(f){const n=f.size,tl=new Uint8Array(await f.slice(Math.max(0,n-70000),n).arrayBuffer());let i=tl.length-22;while(i>=0&&!(tl[i]==80&&tl[i+1]==75&&tl[i+2]==5&&tl[i+3]==6))i--;if(i<0)throw Error('Bukan file ZIP/APKG yang valid.');const v=new DataView(tl.buffer),cnt=v.getUint16(i+10,true),sz=v.getUint32(i+12,true),off=v.getUint32(i+16,true);
+if(off==4294967295)throw Error('File ZIP64 (>4GB) belum didukung.');const cd=new DataView(await f.slice(off,off+sz).arrayBuffer()),E={};let p=0;
+for(let k=0;k<cnt;k++){const nl=cd.getUint16(p+28,true),nm=new TextDecoder().decode(new Uint8Array(cd.buffer,p+46,nl));E[nm]={m:cd.getUint16(p+10,true),cs:cd.getUint32(p+20,true),lo:cd.getUint32(p+42,true)};p+=46+nl+cd.getUint16(p+30,true)+cd.getUint16(p+32,true)}return{f,E}}
+async function zipBlob(z,nm){const e=z.E[nm];if(!e)return null;const h=new DataView(await z.f.slice(e.lo,e.lo+30).arrayBuffer()),s=e.lo+30+h.getUint16(26,true)+h.getUint16(28,true),raw=z.f.slice(s,s+e.cs);return e.m==0?raw:new Response(raw.stream().pipeThrough(new DecompressionStream('deflate-raw'))).blob()}
+const loadJs=s=>new Promise((r,j)=>{const e=document.createElement('script');e.src=s;e.onload=r;e.onerror=()=>j(Error('Gagal memuat sql.js. Sambungkan internet untuk impor pertama.'));document.head.appendChild(e)});
+async function doImport(f){if(!f)return;const say=t=>$('#shb').innerHTML=`<h3 style="margin:0 0 8px">Impor</h3><p>${t}</p>`;sheet('');say('Membaca '+H(f.name)+'…');
+try{if(/\.csv$/i.test(f.name)){const rows=(await f.text()).split(/\r?\n/).filter(Boolean).map(r=>r.match(/("([^"]|"")*"|[^,]*)(,|$)/g).map(x=>x.replace(/,$/,'').replace(/^"|"$/g,'').replace(/""/g,'"')));const hd=rows.shift().map(x=>x.trim().toLowerCase()),ix=k=>hd.indexOf(k);let k=0;for(const r of rows){if(r[ix('front')]){await mkNote('basic',r[ix('deck')]||'Impor CSV',[r[ix('front')],r[ix('back')]||''],r[ix('tags')]||'',1);k++}}await saveMeta();say(`Selesai: ${k} kartu.`);return fin()}
+const z=await zipOpen(f);let dbn=['collection.anki21','collection.anki2'].find(x=>z.E[x]);
+if(!dbn)throw Error(z.E['collection.anki21b']?'Deck ini memakai format baru Anki. Ekspor ulang dari Anki dengan mencentang “Support older Anki versions”.':'Database kartu tidak ditemukan di file ini.');
+say('Memuat mesin database…');if(!window.initSqlJs)await loadJs(SQL_CDN+'sql-wasm.js');const SQL=await initSqlJs({locateFile:x=>SQL_CDN+x});
+const db=new SQL.Database(new Uint8Array(await(await zipBlob(z,dbn)).arrayBuffer())),cr=db.exec('SELECT crt,models,decks FROM col')[0].values[0];
+const M=JSON.parse(cr[1]||'{}'),D=JSON.parse(cr[2]||'{}');if(!Object.keys(M).length)throw Error('Tipe catatan tidak terbaca. Ekspor ulang dengan “Support older Anki versions”.');
+const base=Math.floor(cr[0]*1000/DAY);for(const[id,m]of Object.entries(M))S.models[id]={id,name:m.name,type:m.type||0,css:m.css||'',flds:m.flds.sort((a,b)=>a.ord-b.ord).map(x=>x.name),tmpls:m.tmpls.sort((a,b)=>a.ord-b.ord).map(t=>({name:t.name,qfmt:t.qfmt,afmt:t.afmt}))};
+const dmap={};for(const[id,d]of Object.entries(D))dmap[id]=d.name;
+const nr=db.exec('SELECT id,mid,flds,tags FROM notes')[0]?.values||[],cr2=db.exec('SELECT id,nid,did,odid,ord,type,queue,due,ivl,factor,reps,lapses FROM cards')[0]?.values||[];
+const nn=[],cc=[];for(const[id,mid,fl,tg]of nr){if(notes.has(id))continue;nn.push({id,mid:String(mid),f:String(fl).split('\x1f'),tags:String(tg||'').trim()})}const ok=new Set(nn.map(n=>n.id));
+for(const[id,nid,did,odid,ord,ty,q,due,ivl,fac,reps,lp]of cr2){if(!ok.has(nid))continue;const d=odid||did,nm=dmap[d]||'Impor Anki',dd=deckId(nm);const rev=(ty==2||ty==3)&&ivl>0;
+cc.push({id,nid,did:dd,ord,t:rev?2:(ty==0?0:1),due:rev?base+due:(ty==0?due:Date.now()),ivl:ivl>0?ivl:0,f:fac||2500,r:reps,l:lp,q:q==-1?-1:0,s:0,...(ty==1||ty==3&&!rev?{t:1}:{})})}
+for(let i=0;i<nn.length;i+=500){await PM('notes',nn.slice(i,i+500).map(n=>[n.id,n]));say(`Menyimpan catatan ${Math.min(i+500,nn.length)}/${nn.length}…`)}nn.forEach(n=>notes.set(n.id,n));
+for(let i=0;i<cc.length;i+=500)await PM('cards',cc.slice(i,i+500).map(c=>[c.id,c]));cc.forEach(c=>cards.set(c.id,c));db.close();await saveMeta();
+let mm={};try{mm=JSON.parse(await(await zipBlob(z,'media')).text())}catch(e){}const ent=Object.entries(mm);let k=0;
+for(const[id,name]of ent){const b=await zipBlob(z,id);if(b)await PM('media',[[name,new Blob([b],{type:mime(name)})]]);if(++k%10==0)say(`Menyimpan media ${k}/${ent.length}…`)}
+say(`Selesai: ${nn.length} catatan, ${cc.length} kartu, ${k} file media.`);fin()}
+catch(e){console.error(e);say('Gagal: '+H(e.message))}
+function fin(){$('#shb').insertAdjacentHTML('beforeend','<button class="btn p w" style="text-align:center" onclick="shut();go(\'decks\')">OK</button>')}}
+const sheet=h=>{$('#shb').innerHTML=h;$('#sh').classList.remove('hidden')},shut=()=>$('#sh').classList.add('hidden');
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+init();
 </script></body></html>
