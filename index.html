@@ -7,19 +7,19 @@
 :root{--bg:#2c2c2c;--pn:#3a3a3a;--ink:#f0f0f0;--mut:#9a9a9a;--ln:#4a4a4a;--bl:#4da3ff;--rd:#ff6b6b;--gr:#4cd964;--hd:#1f1f1f;--bt:#484848}
 :root[data-t=light]{--bg:#fff;--pn:#f1f1f1;--ink:#111;--mut:#777;--ln:#ddd;--bl:#0a6ed1;--rd:#d12d2d;--gr:#1a9e3a;--hd:#2b2b2b;--bt:#e4e4e4}
 *{box-sizing:border-box}
-html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+html,body{margin:0;position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
 input,textarea,select{-webkit-user-select:text;user-select:text;font:inherit;font-size:16px;width:100%;padding:11px;margin:4px 0 10px;background:var(--pn);color:var(--ink);border:1px solid var(--ln);border-radius:8px}
 textarea{min-height:70px}
-#app,#rv{position:absolute;inset:0;display:flex;flex-direction:column}
+#app,#rv{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;display:flex;flex-direction:column}
 #rv{z-index:20;background:var(--bg)}
 .bar{flex:none;height:calc(52px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 8px 0;display:flex;align-items:center;justify-content:space-between;background:var(--hd);color:#fff}
 .bar b{font-size:18px}.ib{flex:none;width:44px;height:44px;border:0;background:none;color:#fff;font-size:24px}
 #pg,#cb{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}
 #pg{padding:8px 0 16px}
-nav,.foot{flex:none;height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--hd);border-top:1px solid var(--ln)}
-nav button{flex:1;border:0;background:none;color:#aaa;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-nav button i{font-style:normal;font-size:21px}nav .on{color:var(--bl);font-weight:700}
-.foot{align-items:stretch;gap:6px;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav,.foot{flex:none;height:calc(50px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:var(--hd);border-top:1px solid var(--ln)}
+nav button{flex:1;border:0;background:none;color:#aaa;font-size:11px;line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+nav button i{font-style:normal;font-size:20px;line-height:1}nav .on{color:var(--bl);font-weight:700}
+.foot{height:calc(58px + env(safe-area-inset-bottom));align-items:stretch;gap:6px;padding:6px 8px calc(2px + env(safe-area-inset-bottom))}
 .foot button{flex:1;border:0;border-radius:10px;background:var(--bt);color:var(--ink);font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .foot small{font-size:11px;font-weight:400;color:var(--mut)}.foot .a1{color:var(--rd)}.foot .a3{color:var(--gr)}.foot .a4{color:var(--bl)}
 .row{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--ln);gap:8px}.row .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -37,7 +37,7 @@ nav button i{font-style:normal;font-size:21px}nav .on{color:var(--bl);font-weigh
 <nav><button data-k="decks" class="on"><i>🗂</i>Dek</button><button data-k="browse"><i>🔍</i>Cari</button><button data-k="stats"><i>📊</i>Statistik</button><button data-k="set"><i>⚙️</i>Setelan</button></nav></div>
 <div id="rv" class="hidden"><div class="bar"><button class="ib" onclick="closeRv()">←</button><div class="cnt" id="rc"></div><button class="ib" onclick="rvMenu()">⋮</button></div><div id="cb" onclick="cardTap(event)"><div id="host"></div></div><div class="foot" id="rf"></div></div>
 <div id="sh" class="hidden" onclick="if(event.target==this)shut()"><div id="shb"></div></div>
-<input type="file" id="fi" accept=".apkg,.zip,.csv" class="hidden" onchange="doImport(this.files[0]);this.value=''">
+<input type="file" id="fi" style="position:fixed;left:-9999px;width:1px;height:1px;opacity:0" onchange="doImport(this.files[0]);this.value=''">
 <script>
 const $=s=>document.querySelector(s),H=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let IDB;const DAY=864e5,today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4-144e5)/DAY),uid=()=>Date.now()*1000+Math.floor(Math.random()*1000);
@@ -83,7 +83,7 @@ return L||(k.r>0&&R)||(k.n>0&&N)||LA||null}
 /* ---------- navigasi ---------- */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.k));
 const TT={decks:'Dek',browse:'Cari kartu',stats:'Statistik',set:'Setelan'};
-function go(k){tab=k;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#ttl').textContent=TT[k];$('#hb').style.visibility=k=='decks'?'visible':'hidden';$('#pg').scrollTop=0;({decks:vDecks,browse:vBrowse,stats:vStats,set:vSet})[k]()}
+function go(k){tab=k;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));$('#ttl').textContent=TT[k];$('#hb').style.visibility=k=='decks'?'visible':'hidden';$('#pg').scrollTop=0;$('#pg').onclick=null;try{({decks:vDecks,browse:vBrowse,stats:vStats,set:vSet})[k]()}catch(e){pg('<p style="padding:16px;color:var(--rd)">Error: '+H(e.message)+'</p>')}}
 const pg=h=>$('#pg').innerHTML=h;
 function vDecks(){const names=new Set;Object.values(S.decks).forEach(d=>{const p=d.name.split('::');p.forEach((_,i)=>names.add(p.slice(0,i+1).join('::')))});
 let list=[...names].sort((a,b)=>a.localeCompare(b)).filter(n=>n!=='Default'||[...cards.values()].some(c=>S.decks[c.did]?.name==='Default'));
@@ -165,7 +165,7 @@ if(off==4294967295)throw Error('File ZIP64 (>4GB) belum didukung.');const cd=new
 for(let k=0;k<cnt;k++){const nl=cd.getUint16(p+28,true),nm=new TextDecoder().decode(new Uint8Array(cd.buffer,p+46,nl));E[nm]={m:cd.getUint16(p+10,true),cs:cd.getUint32(p+20,true),lo:cd.getUint32(p+42,true)};p+=46+nl+cd.getUint16(p+30,true)+cd.getUint16(p+32,true)}return{f,E}}
 async function zipBlob(z,nm){const e=z.E[nm];if(!e)return null;const h=new DataView(await z.f.slice(e.lo,e.lo+30).arrayBuffer()),s=e.lo+30+h.getUint16(26,true)+h.getUint16(28,true),raw=z.f.slice(s,s+e.cs);return e.m==0?raw:new Response(raw.stream().pipeThrough(new DecompressionStream('deflate-raw'))).blob()}
 const loadJs=s=>new Promise((r,j)=>{const e=document.createElement('script');e.src=s;e.onload=r;e.onerror=()=>j(Error('Gagal memuat sql.js. Sambungkan internet untuk impor pertama.'));document.head.appendChild(e)});
-async function doImport(f){if(!f)return;const say=t=>$('#shb').innerHTML=`<h3 style="margin:0 0 8px">Impor</h3><p>${t}</p>`;sheet('');say('Membaca '+H(f.name)+'…');
+async function doImport(f){if(!f)return;if(!/\.(apkg|zip|csv)$/i.test(f.name))return alert('Pilih file .apkg, .zip, atau .csv');const say=t=>$('#shb').innerHTML=`<h3 style="margin:0 0 8px">Impor</h3><p>${t}</p>`;sheet('');say('Membaca '+H(f.name)+'…');
 try{if(/\.csv$/i.test(f.name)){const rows=(await f.text()).split(/\r?\n/).filter(Boolean).map(r=>r.match(/("([^"]|"")*"|[^,]*)(,|$)/g).map(x=>x.replace(/,$/,'').replace(/^"|"$/g,'').replace(/""/g,'"')));const hd=rows.shift().map(x=>x.trim().toLowerCase()),ix=k=>hd.indexOf(k);let k=0;for(const r of rows){if(r[ix('front')]){await mkNote('basic',r[ix('deck')]||'Impor CSV',[r[ix('front')],r[ix('back')]||''],r[ix('tags')]||'',1);k++}}await saveMeta();say(`Selesai: ${k} kartu.`);return fin()}
 const z=await zipOpen(f);let dbn=['collection.anki21','collection.anki2'].find(x=>z.E[x]);
 if(!dbn)throw Error(z.E['collection.anki21b']?'Deck ini memakai format baru Anki. Ekspor ulang dari Anki dengan mencentang “Support older Anki versions”.':'Database kartu tidak ditemukan di file ini.');
